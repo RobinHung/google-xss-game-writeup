@@ -8,7 +8,7 @@
 ```
 
 ### Where is the vulnerable code?
-In [level1.py](source-code/level1.py), the input strings are directly being rendered without any escaping or validation.
+In [level1.py](source-code/level-1.py), the input strings are directly being rendered without any escaping or validation.
 
 ```python
 message = "Sorry, no results were found for <b>" + query + "</b>."
@@ -55,7 +55,7 @@ https://xss-game.appspot.com/level3/frame#1.jpg' onClick="alert()" alt='will_not
 
 ### Vulnerable Code
 
-The vulnerable code appears at Line17 of [index.html](/source_code/level3/index.html) file. This allows attacker to inject Javascript code using `onerror` event in the `img` tag.
+The vulnerable code appears at Line17 of [index.html](/source_code/level-3/index.html) file. This allows attacker to inject Javascript code using `onerror` event in the `img` tag.
 ```html
 html += "<img src='/static/level3/cloud" + num + ".jpg' />";
 ```
@@ -73,3 +73,72 @@ The image is stored inside the database as `1.jpg`. So if you modify the image t
 will NOT trigger the `onerror` event.
 
 Just delete the `.jpg` extension will make the image un-displayable and thus trigger the `onerror` event :)
+
+## Level 4
+
+### How to exploit?
+Input the following weird string to become the timer!
+```
+3');alert('
+```
+
+### Analysis
+In this case, the vulnerable code locates at line 21 of the  [timer.html](/source_code/level-3/timer.html) file.
+
+```html
+<img src="/static/loading.gif" onload="startTimer('{{ timer }}');" />
+```
+
+With proper numerical input, the `onload` event execute the function `startTimer('3');` without any problem. In this case, `3` is the type of string, and will eventually be parsed as integer (`parseInt`) in the startTimer function.
+
+Thus, we can utilize the `onload` event to add additional javascript code! If our input is OUR_INPUT_STRING, the `startTimer` function will look like this:
+```js
+onload="startTimer('OUR_INPUT_STRING')"
+```
+
+If we intentionally set our input to be `3');`, some magical things then happen! We have manually escaped the startTimer function! In this case, the onload event looks like this:
+```js
+// I intentionally make a space after the `;` of startTimer function. Just to make things clearer :)
+onload="startTimer('3'); ')"
+```
+The remaining `');'` is "auto-filled" by the program, so the remaining thing we need to do is to add `alert('` after our above-mentioned tricky string. Now we have successfully injected the javascript code into the web page!
+
+The **injected** `onload` event will become like this:
+```js
+onload="startTimer('3');alert('')"
+```
+
+## Level 5
+
+### How to exploit?
+```html
+https://xss-game.appspot.com/level5/frame/signup?next=javascript:alert('')
+```
+
+In the `signup` page, change the value of the `next` parameter in the URL. Use `javascipt:alert()` instead of "confirm"!
+
+So the URL for our exploitation will become
+```html
+https://xss-game.appspot.com/level5/frame/signup?next=javascript:alert()
+```
+
+*NOTICE*: After you forge the URL in this case, you need to **click the GO button first**, then entering your mail and clicking the Next button. Only in this case will make that forged URL valid. After that, enjoy the result javascript alert popping up :)
+
+### Analysis
+<!-- TODO -->
+TODO
+
+## Level 6
+
+### Exploit Code
+
+```html
+https://xss-game.appspot.com/level6/frame#//www.google.com/jsapi?callback=alert
+```
+
+Another way to work...
+```html
+https://xss-game.appspot.com/level6/frame#data:text/javascript,alert('')
+```
+
+### Analysis
