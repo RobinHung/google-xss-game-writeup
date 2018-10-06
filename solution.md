@@ -34,9 +34,9 @@ Some options:
 <img src="hahaa" onerror="alert()">
 ```
 
-### Vulnerable code
-<!-- TODO -->
-**TODO**
+### Analysis
+
+Any content of post is displayed without escaping. Therefore, we can use "onclick" or "onerror" to execut a script.
 
 ## Level 3
 
@@ -125,8 +125,13 @@ https://xss-game.appspot.com/level5/frame/signup?next=javascript:alert()
 *NOTICE*: After you forge the URL in this case, you need to **click the GO button first**, then entering your mail and clicking the Next button. Only in this case will make that forged URL valid. After that, enjoy the result javascript alert popping up :)
 
 ### Analysis
-<!-- TODO -->
-TODO
+
+After changing the content of "next" parameter, behavior of the next button will be modified, which is defined in line 15 of signup.html:
+```html
+<a href="{{ next }}">Next >></a>
+```
+
+Javascript code inserted in the parameter will be executed after clicking the next button.
 
 ## Level 6
 
