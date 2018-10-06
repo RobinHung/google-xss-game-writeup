@@ -147,3 +147,5 @@ https://xss-game.appspot.com/level6/frame#data:text/javascript,alert('')
 ```
 
 ### Analysis
+
+Function includeGadget(url) prevents client from loading a 'http' url, but leaves other data formats unchecked. We can load a text which contains javascript code, or a url without 'http'.
